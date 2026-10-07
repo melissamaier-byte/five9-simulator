@@ -1261,7 +1261,8 @@ function resetSim(p){
   document.getElementById(p+'-pill').innerHTML='<i class="ti ti-circle-check" style="font-size:14px;color:#145226;"></i> Ready (Voice) <span style="color:#145226;margin-left:6px;" id="'+p+'-timer-bar">0:00</span>';
   document.getElementById(p+'-timer').textContent='0:00';
   document.getElementById(p+'-cb-badge').style.display='none';
-  document.getElementById(p+'-end-btn').style.display='none';
+  var endBtn=document.getElementById(p+'-end-btn');
+  if(endBtn) endBtn.style.display='none';
 }
 function showFeedback(id, correct, correctDisp, chosen, hint) {
   var f=document.getElementById(id);
@@ -1444,7 +1445,7 @@ function m3Dismiss(){
   m3callInt=startTimer('m3');
   if(m3c.audioFile){
     m3audio=new Audio(m3c.audioFile);
-    document.getElementById('m3-audio-time').textContent='0:00 / '+fmt(m3c.audioDuration);
+    document.getElementById('m3-audio-time').textContent='0:00 / 0:00';
     m3audio.addEventListener('timeupdate',function(){
       var cur=Math.floor(m3audio.currentTime);
       var total=Math.floor(m3audio.duration)||m3c.audioDuration;
