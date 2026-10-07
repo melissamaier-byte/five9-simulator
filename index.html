@@ -169,7 +169,7 @@ body { font-family: "DM Sans", -apple-system, sans-serif; background: #edf0f7; p
 
 /* Audio bar */
 .audio-bar { background: #0f2942; padding: 9px 16px; display: none; align-items: center; gap: 12px; }
-.audio-pause-btn { background: #2f7fc1; color: white; border: none; border-radius: 50%; width: 28px; height: 28px; font-size: 12px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.audio-pause-btn { background: #2f7fc1; color: white; border: none; border-radius: 50%; width: 34px; height: 34px; font-size: 12px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .audio-lbl { color: #b5d3ee; font-size: 12px; white-space: nowrap; }
 .audio-progress { background: rgba(255,255,255,0.12); border-radius: 4px; height: 4px; flex: 1; overflow: hidden; }
 .audio-fill { background: #4a9edd; height: 100%; width: 0%; transition: width 0.8s linear; }
@@ -508,6 +508,13 @@ body { font-family: "DM Sans", -apple-system, sans-serif; background: #edf0f7; p
     <div class="step-indicator" id="m2-step">Incoming call</div>
     <div class="instruction-bar"><i class="ti ti-info-circle" aria-hidden="true" style="font-size:16px;"></i><span id="m2-instruction">You have an incoming call. Review the interaction details and click OK — the call connects automatically.</span></div>
     <div class="outcome-blurb" id="m2-blurb"><strong>Call Summary</strong><span id="m2-blurb-desc"></span></div>
+    <div id="m2-disp-area" style="display:none;margin-bottom:16px;">
+      <div class="submit-area">
+        <div class="submit-label">Set the disposition in the Five9 screen below, then check your answer here</div>
+        <div class="submit-row"><span class="sel-lbl">Selected:</span><span class="sel-val" id="m2-disp-label">None</span><button class="submit-btn" onclick="m2Submit()">Check Answer</button><button class="guide-btn" onclick="openGuide()" style="margin-left:4px;"><i class="ti ti-book-2" aria-hidden="true" style="font-size:13px;"></i> Guide</button></div>
+        <div id="m2-feedback" class="feedback"></div>
+      </div>
+    </div>
     <div class="f9-wrap" id="m2-wrap">
       <div class="f9-topbar">
         <div style="width:64px;"></div>
@@ -607,13 +614,6 @@ body { font-family: "DM Sans", -apple-system, sans-serif; background: #edf0f7; p
         </div>
       </div>
     </div>
-    <div id="m2-disp-area" style="display:none;">
-      <div class="submit-area">
-        <div class="submit-label">Set the correct disposition and submit</div>
-        <div class="submit-row"><span class="sel-lbl">Selected:</span><span class="sel-val" id="m2-disp-label">None</span><button class="submit-btn" onclick="m2Submit()">Check Answer</button><button class="guide-btn" onclick="openGuide()" style="margin-left:4px;"><i class="ti ti-book-2" aria-hidden="true" style="font-size:13px;"></i> Guide</button></div>
-        <div id="m2-feedback" class="feedback"></div>
-      </div>
-    </div>
   </div>
 </div>
 
@@ -645,7 +645,7 @@ body { font-family: "DM Sans", -apple-system, sans-serif; background: #edf0f7; p
         <div class="f9-acd-bar"><span>My Skills 1</span><span>Calls 0</span><span>Callbacks 0</span><span>Voicemails 0</span></div>
       </div>
       <div class="audio-bar" id="m3-audio-bar">
-        <button class="audio-pause-btn" id="m3-pause-btn" onclick="m3TogglePause()" aria-label="Pause"><i class="ti ti-player-pause"></i></button>
+        <button class="audio-pause-btn" id="m3-pause-btn" onclick="m3TogglePause()" aria-label="Pause simulation" title="Pause simulation"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="5" y="3" width="5" height="18" rx="1.5"/><rect x="14" y="3" width="5" height="18" rx="1.5"/></svg></button>
         <div class="audio-lbl" id="m3-audio-lbl">Pause Simulation</div>
         <div class="audio-progress"><div class="audio-fill" id="m3-audio-fill"></div></div>
         <div class="audio-time" id="m3-audio-time">0:00 / 0:00</div>
@@ -1338,7 +1338,7 @@ function m2Dismiss(){
   document.getElementById('m2-disp-area').style.display='block';
   enableBtn('m2-disp-btn');
   document.getElementById('m2-step').textContent='Read the call summary below, then set the correct disposition';
-  document.getElementById('m2-instruction').textContent='The call is live. Read the call summary, select the correct disposition using Set Disposition above, then click Check Answer at the bottom to submit. The Dispo Guide is available if you need help.';
+  document.getElementById('m2-instruction').textContent='The call is live. Read the call summary, then use Set Disposition in the Five9 screen below to pick the disposition. Click Check Answer (right under the summary) to submit. The Dispo Guide is available if you need help.';
   m2int=startTimer('m2');
 }
 function m2EndCall(){
@@ -1405,6 +1405,8 @@ var m3c=null,m3callInt=null,m3audioInt=null,m3countInt=null,m3correct=0,m3total=
 var m3audioSecs=0,m3callDone=false,m3countSecs=60,m3paused=false,m3audio=null;
 var m3RoundNum=1,m3RoundCorrect=0,m3RoundResults=[],m3RoundSize=5,m3RoundCount=0;
 
+var PAUSE_ICON='<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="5" y="3" width="5" height="18" rx="1.5"/><rect x="14" y="3" width="5" height="18" rx="1.5"/></svg>';
+var PLAY_ICON='<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 3.5v17a1 1 0 0 0 1.5.86l14-8.5a1 1 0 0 0 0-1.72l-14-8.5A1 1 0 0 0 7 3.5z"/></svg>';
 var m3Queue = [], m3qi_obj = {val:0};
 function randM3() { return nextFromQueue(m3Queue, m3qi_obj, DRILL_SCENARIOS); }
 
@@ -1429,7 +1431,7 @@ function m3Reset(){
   disableBtn('m3-disp-btn');
   var pb=document.getElementById('m3-pause-btn');
   pb.style.display='inline-flex';
-  pb.innerHTML='<i class="ti ti-player-pause"></i>';
+  pb.innerHTML=PAUSE_ICON; pb.setAttribute('aria-label','Pause simulation'); pb.title='Pause simulation';
   pb.style.background='#2f7fc1';
   document.getElementById('m3-step').textContent='Click Start Call when you\'re ready';
   document.getElementById('m3-instruction').textContent='Click the Start Call button above when you\'re ready to receive your next call.';
@@ -1448,8 +1450,8 @@ function m3Dismiss(){
     document.getElementById('m3-audio-time').textContent='0:00 / 0:00';
     m3audio.addEventListener('timeupdate',function(){
       var cur=Math.floor(m3audio.currentTime);
-      var total=Math.floor(m3audio.duration)||m3c.audioDuration;
-      document.getElementById('m3-audio-fill').style.width=(cur/total*100)+'%';
+      var total=isFinite(m3audio.duration)?Math.floor(m3audio.duration):0;
+      document.getElementById('m3-audio-fill').style.width=(total?cur/total*100:0)+'%';
       document.getElementById('m3-audio-time').textContent=fmt(cur)+' / '+fmt(total);
     });
     m3audio.addEventListener('ended',function(){m3CallEnded();});
@@ -1474,11 +1476,11 @@ function m3TogglePause(){
   if(m3paused){
     if(m3audio) m3audio.pause();
     clearInterval(m3audioInt);
-    btn.innerHTML='<i class="ti ti-player-play"></i>';btn.style.background='#b36b00';
-    lbl.textContent='Paused — click to resume';
+    btn.innerHTML=PLAY_ICON;btn.style.background='#b36b00';btn.setAttribute('aria-label','Resume simulation');btn.title='Resume simulation';
+    lbl.textContent='Paused — click the play button to resume';
   } else {
     if(m3audio){
-      m3audio.play();
+      m3audio.play().catch(function(){});
     } else {
       var total=m3c.audioDuration;
       m3audioInt=setInterval(function(){
@@ -1489,7 +1491,7 @@ function m3TogglePause(){
         if(m3audioSecs>=total){clearInterval(m3audioInt);m3CallEnded();}
       },1000);
     }
-    btn.innerHTML='<i class="ti ti-player-pause"></i>';btn.style.background='#2f7fc1';
+    btn.innerHTML=PAUSE_ICON;btn.style.background='#2f7fc1';btn.setAttribute('aria-label','Pause simulation');btn.title='Pause simulation';
     lbl.textContent='Pause Simulation';
   }
 }
